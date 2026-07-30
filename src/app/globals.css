@@ -1,32 +1,110 @@
 @import "tailwindcss";
 
-@layer base {
-  :root {
-    --background: #ffffff;
-    --foreground: #1a1a1a;
-    --accent: #06a8a8;
-    --accent-hover: #0891b2;
-    --muted: #f8fafb;
-    --border: #e5e7eb;
-    --text-secondary: #666666;
-  }
+/*
+ * Design tokens — single source of truth for the palette (DESIGN.md §2).
+ *
+ * Values live as plain custom properties on :root and are re-exported through
+ * `@theme inline`, so every Tailwind utility (bg-canvas, text-ink, border-line)
+ * resolves to the *live* variable rather than a compile-time copy. The dark
+ * palette is therefore one media-query override, and no component in the tree
+ * needs a `dark:` variant — the web app follows the device theme only, with no
+ * in-app toggle, exactly as the design system specifies.
+ */
+:root {
+  --canvas: #ffffff;
+  --surface: #f8fafb;
+  --ink: #1a1a1a;
+  --ink-soft: #666666;
+  --line: #e5e7eb;
+  --accent: #06a8a8;
+  --accent-strong: #0891b2;
+  --positive: #10b981;
+}
 
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --background: #0f172a;
-      --foreground: #f1f5f9;
-      --accent: #06a8a8;
-      --accent-hover: #0891b2;
-      --muted: #1e293b;
-      --border: #334155;
-      --text-secondary: #94a3b8;
-    }
+@media (prefers-color-scheme: dark) {
+  :root {
+    --canvas: #0f172a;
+    --surface: #1e293b;
+    --ink: #f1f5f9;
+    --ink-soft: #94a3b8;
+    --line: #334155;
+    --accent: #06a8a8;
+    /* Lightened on dark so accent-coloured text still clears WCAG AA on #0F172A. */
+    --accent-strong: #22d3ee;
+    --positive: #34d399;
   }
 }
 
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-positive: var(--positive);
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-bengali: var(--font-noto-bengali), var(--font-inter), sans-serif;
+
+  /* Calm, never springy: 320ms ease-in-out is the house default. */
+  --default-transition-duration: 320ms;
+  --default-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 body {
-  background-color: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-inter), system-ui, sans-serif;
-  overflow-x: hidden;
+  background-color: var(--canvas);
+  color: var(--ink);
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background-color: color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
+/* "A thoughtful response arriving" — the mediated-message reveal. */
+@utility rise {
+  animation: duet-rise 360ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+@keyframes duet-rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Presence indicators breathe slowly instead of blinking on and off. */
+@utility breathe {
+  animation: duet-breathe 3.2s ease-in-out infinite;
+}
+
+@keyframes duet-breathe {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+/* Motion is feedback, not decoration — honour the OS-level opt-out. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

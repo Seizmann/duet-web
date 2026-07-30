@@ -1,49 +1,60 @@
-import { Header } from '@/components/layout/Header';
-import { HeroSection } from '@/components/landing/HeroSection';
-import { InteractiveDemo } from '@/components/landing/InteractiveDemo';
-import { TransparencySection } from '@/components/landing/TransparencySection';
-import { FeatureCard } from '@/components/features/FeatureCard';
+import { SiteHeader } from '@/components/layout/SiteHeader';
+import { SiteFooter } from '@/components/layout/SiteFooter';
+import { Section } from '@/components/layout/Section';
+import { Hero } from '@/components/landing/Hero';
+import { MediationLanes } from '@/components/landing/MediationLanes';
+import { Principles } from '@/components/landing/Principles';
+import { Transparency } from '@/components/landing/Transparency';
+import { FAQ } from '@/components/landing/FAQ';
+import { StructuredData } from '@/components/seo/StructuredData';
 
-export default function Home() {
+/**
+ * Landing page. Everything here renders on the server; the only client-side
+ * JavaScript on the route is the mediation preview's sample switcher, which is
+ * isolated in its own leaf component so the rest of the page ships as markup.
+ */
+export default function LandingPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-white dark:bg-[#0F172A] text-gray-900 dark:text-slate-100 selection:bg-[#06A8A8]/20 transition-colors">
-      <Header />
+    <>
+      <StructuredData />
+      <SiteHeader />
 
-      <main className="flex-1 w-full">
-        {/* 1. Hero Section */}
-        <HeroSection />
+      <main id="main">
+        <Hero />
 
-        {/* 2. Interactive AI Mediation Live Demo */}
-        <InteractiveDemo />
+        <Section
+          id="mediation"
+          index="01"
+          label="The mediation"
+          title="The same feeling, said in a way it can actually land."
+        >
+          <MediationLanes />
+        </Section>
 
-        {/* 3. Core Product Features */}
-        <section className="max-w-5xl mx-auto my-16 px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full text-left">
-            <FeatureCard
-              icon="reactions"
-              title="Authentic Expressions"
-              description="No standard emojis or toxic engagement loops. High-contrast vector reactions built for honest feedback."
-            />
-            <FeatureCard
-              icon="vent"
-              title="Confidential AI Venting"
-              description="Talk through misunderstandings with AI first. Express frustrations safely in isolated, encrypted confessionals."
-            />
-            <FeatureCard
-              icon="privacy"
-              title="Verifiable Open-Source Trust"
-              description="Transparent 2-tier feed ranking with no hidden algorithms or time-spent manipulation."
-            />
-          </div>
-        </section>
+        <Section
+          id="principles"
+          index="02"
+          label="What Duet will and will not do"
+          title="Four commitments the product is built around."
+        >
+          <Principles />
+        </Section>
 
-        {/* 4. Algorithmic Transparency & Security */}
-        <TransparencySection />
+        <Section
+          id="transparency"
+          index="03"
+          label="Transparency"
+          title="You do not have to take our word for any of this."
+        >
+          <Transparency />
+        </Section>
+
+        <Section id="faq" index="04" label="Questions" title="Answered plainly.">
+          <FAQ />
+        </Section>
       </main>
 
-      <footer className="py-10 border-t border-gray-200 dark:border-slate-800 text-center text-xs text-gray-500 dark:text-slate-500 bg-[#F8FAFB] dark:bg-[#0F172A]">
-        <p>© 2026 SpritexAI. Built with RexiO Duet Architecture. Founder & Lead Engineer Mohammad Sijan.</p>
-      </footer>
-    </div>
+      <SiteFooter />
+    </>
   );
 }
