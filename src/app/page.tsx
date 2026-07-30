@@ -1,5 +1,6 @@
 import { cookies } from 'next/headers';
 import type { Metadata } from 'next';
+import { callGateway } from '@/lib/gateway';
 import { SiteHeader } from '@/components/layout/SiteHeader';
 import { SiteFooter } from '@/components/layout/SiteFooter';
 import { Section } from '@/components/layout/Section';
@@ -76,9 +77,21 @@ function LandingView() {
 
 export default async function RootPage() {
   const cookieStore = await cookies();
-  const hasSession = cookieStore.has('duet_session');
+  const duetSession = cookieStore.get('duet_session')?.value;
+  let isValidSession = false;
 
-  if (hasSession) {
+  if (duetSession) {
+    try {
+      const csrf = cookieStore.get('csrf_token')?.value;
+      const cookieStr = `duet_session=${duetSession}; csrf_token=${csrf || ''}`;
+      const res = await callGateway('a3', {}, cookieStr);
+      isValidSession = res.ok;
+    } catch {
+      isValidSession = false;
+    }
+  }
+
+  if (isValidSession) {
     return <FeedScreen />;
   }
   
