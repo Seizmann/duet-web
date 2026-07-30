@@ -1,3 +1,5 @@
+import { cookies } from 'next/headers';
+import type { Metadata } from 'next';
 import { SiteHeader } from '@/components/layout/SiteHeader';
 import { SiteFooter } from '@/components/layout/SiteFooter';
 import { Section } from '@/components/layout/Section';
@@ -7,13 +9,26 @@ import { Principles } from '@/components/landing/Principles';
 import { Transparency } from '@/components/landing/Transparency';
 import { FAQ } from '@/components/landing/FAQ';
 import { StructuredData } from '@/components/seo/StructuredData';
+import { FeedScreen } from '@/components/feed/FeedScreen';
 
-/**
- * Landing page. Everything here renders on the server; the only client-side
- * JavaScript on the route is the mediation preview's sample switcher, which is
- * isolated in its own leaf component so the rest of the page ships as markup.
- */
-export default function LandingPage() {
+export async function generateMetadata(): Promise<Metadata> {
+  const cookieStore = await cookies();
+  const hasSession = cookieStore.has('duet_session');
+  
+  if (hasSession) {
+    return {
+      title: 'Feed · Duet',
+      robots: {
+        index: false,
+        follow: false,
+      },
+    };
+  }
+  
+  return {};
+}
+
+function LandingView() {
   return (
     <>
       <StructuredData />
@@ -57,4 +72,15 @@ export default function LandingPage() {
       <SiteFooter />
     </>
   );
+}
+
+export default async function RootPage() {
+  const cookieStore = await cookies();
+  const hasSession = cookieStore.has('duet_session');
+
+  if (hasSession) {
+    return <FeedScreen />;
+  }
+  
+  return <LandingView />;
 }
