@@ -59,17 +59,20 @@ export async function callGateway<T>(
     cache: 'no-store',
   });
 
-  if (res.status === 401) {
-    throw new Error('Unauthorized');
-  }
-
-  if (!res.ok) {
-    throw new Error(`Gateway returned status ${res.status}`);
-  }
-
   const rawBody = await res.text();
-  const decryptedStr = openPayload(rawBody, payloadKey);
-  const reply = JSON.parse(decryptedStr);
+
+  // The backend answers handler failures with the real status AND an encrypted
+  // {ok:false, message} body. Bailing on !res.ok would swallow that message and
+  // surface a bare status code instead. Only a body we cannot open is fatal —
+  // that means the proxy rejected us before the backend ever saw the envelope.
+  let reply;
+  try {
+    reply = JSON.parse(openPayload(rawBody, payloadKey));
+  } catch {
+    throw new Error(
+      res.status === 401 ? 'Unauthorized' : `Gateway returned status ${res.status}`
+    );
+  }
 
   const setCookieHeaders = res.headers.getSetCookie ? res.headers.getSetCookie() : [];
 
