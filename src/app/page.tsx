@@ -1,4 +1,5 @@
 import { cookies } from 'next/headers';
+import { cache } from 'react';
 import type { Metadata } from 'next';
 import { callGateway } from '@/lib/gateway';
 import { SiteHeader } from '@/components/layout/SiteHeader';
@@ -12,21 +13,33 @@ import { FAQ } from '@/components/landing/FAQ';
 import { StructuredData } from '@/components/seo/StructuredData';
 import { FeedScreen } from '@/components/feed/FeedScreen';
 
-export async function generateMetadata(): Promise<Metadata> {
+// Cookie presence is not a session: an expired or forged token still sets one. Both the
+// metadata and the body must agree on the *verified* answer, so they share this one call
+// — `cache` dedupes it across the render pass.
+const hasValidSession = cache(async (): Promise<boolean> => {
   const cookieStore = await cookies();
-  const hasSession = cookieStore.has('duet_session');
-  
-  if (hasSession) {
-    return {
-      title: 'Feed · Duet',
-      robots: {
-        index: false,
-        follow: false,
-      },
-    };
+  const duetSession = cookieStore.get('duet_session')?.value;
+  if (!duetSession) return false;
+
+  try {
+    const csrf = cookieStore.get('csrf_token')?.value;
+    const res = await callGateway('a3', {}, `duet_session=${duetSession}; csrf_token=${csrf || ''}`);
+    return res.ok;
+  } catch {
+    return false;
   }
-  
-  return {};
+});
+
+export async function generateMetadata(): Promise<Metadata> {
+  if (!(await hasValidSession())) return {};
+
+  return {
+    title: 'Feed · Duet',
+    robots: {
+      index: false,
+      follow: false,
+    },
+  };
 }
 
 function LandingView() {
@@ -76,24 +89,5 @@ function LandingView() {
 }
 
 export default async function RootPage() {
-  const cookieStore = await cookies();
-  const duetSession = cookieStore.get('duet_session')?.value;
-  let isValidSession = false;
-
-  if (duetSession) {
-    try {
-      const csrf = cookieStore.get('csrf_token')?.value;
-      const cookieStr = `duet_session=${duetSession}; csrf_token=${csrf || ''}`;
-      const res = await callGateway('a3', {}, cookieStr);
-      isValidSession = res.ok;
-    } catch {
-      isValidSession = false;
-    }
-  }
-
-  if (isValidSession) {
-    return <FeedScreen />;
-  }
-  
-  return <LandingView />;
+  return (await hasValidSession()) ? <FeedScreen /> : <LandingView />;
 }

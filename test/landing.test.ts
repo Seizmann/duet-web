@@ -38,14 +38,21 @@ for (const { path, text } of files) {
   assert.ok(!/#[0-9a-fA-F]{6}\b/.test(text), `hardcoded hex colour in ${path} — use a token`);
 }
 
-// Performance: client components are the JS budget. Only the mediation preview
-// needs browser state; anything else opting in should be a deliberate change.
+// Performance: client components are the JS budget. Only components that hold
+// browser state need to opt in; anything else appearing here should be a
+// deliberate change. Server Actions run from a plain `<form action={...}>`, so a
+// component that only submits one stays on the server.
 const clientComponents = files
   .filter(({ text }) => text.startsWith("'use client'"))
   .map(({ path }) => path);
 assert.deepEqual(
-  clientComponents.map((p) => p.slice(SRC.length + 1)),
-  ['components/landing/MediationLanes.tsx'],
+  clientComponents.map((p) => p.slice(SRC.length + 1)).sort(),
+  [
+    'app/(auth)/login/page.tsx', // useActionState for inline form errors
+    'app/(auth)/signup/page.tsx', // useActionState for inline form errors
+    'components/feed/FeedPost.tsx', // optimistic reaction state
+    'components/landing/MediationLanes.tsx',
+  ],
   'unexpected client component — keep interactivity at leaf nodes',
 );
 
