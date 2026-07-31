@@ -33,18 +33,16 @@ export const FeedScreen = () => {
       <AppHeader />
       
       <main className="flex-1 w-full max-w-[680px] mx-auto px-4 sm:px-6 py-6 md:py-8 pb-24 md:pb-8">
-        <div className="mb-6">
+        <header className="settle mb-8 border-l-2 border-accent pl-5">
           <h1 className="text-[24px] sm:text-[28px] font-semibold tracking-tight text-ink">
             Shared Space
           </h1>
-          <p className="text-ink-soft mt-1">
-            Thoughts and reflections, mediated for clarity.
-          </p>
-        </div>
+          <p className="mt-1 text-ink-soft">Thoughts and reflections, mediated for clarity.</p>
+        </header>
 
         <div className="flex flex-col gap-6">
-          {MOCK_POSTS.map(post => (
-            <FeedPost key={post.id} post={post} />
+          {MOCK_POSTS.map((post, i) => (
+            <FeedPost key={post.id} post={post} index={i + 1} />
           ))}
         </div>
       </main>

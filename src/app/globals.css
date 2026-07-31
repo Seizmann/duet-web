@@ -19,6 +19,10 @@
   --accent: #06a8a8;
   --accent-strong: #0891b2;
   --positive: #10b981;
+  /* DESIGN.md §5.2 caps card elevation at one hairline shadow. On dark the
+     same shadow is invisible, so depth there comes from the border alone. */
+  --elevate: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --elevate-hover: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -32,6 +36,8 @@
     /* Lightened on dark so accent-coloured text still clears WCAG AA on #0F172A. */
     --accent-strong: #22d3ee;
     --positive: #34d399;
+    --elevate: none;
+    --elevate-hover: none;
   }
 }
 
@@ -44,6 +50,9 @@
   --color-accent: var(--accent);
   --color-accent-strong: var(--accent-strong);
   --color-positive: var(--positive);
+
+  --shadow-elevate: var(--elevate);
+  --shadow-elevate-hover: var(--elevate-hover);
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-bengali: var(--font-noto-bengali), var(--font-inter), sans-serif;
@@ -58,6 +67,25 @@ body {
   color: var(--ink);
   font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* cv11 = single-storey g/l, ss01 = disambiguated I/l — Inter's own
+     recommendation for UI text; tnum keeps reaction counts from reflowing. */
+  font-feature-settings: 'cv11', 'ss01', 'tnum';
+  font-optical-sizing: auto;
+  text-rendering: optimizeLegibility;
+}
+
+/* Optical size is the whole point of the variable axis: large type wants
+   tighter apertures and negative tracking, small type wants the opposite. */
+h1,
+h2,
+h3 {
+  font-variation-settings: 'opsz' 32;
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
 }
 
 ::selection {
@@ -67,6 +95,24 @@ body {
 /* "A thoughtful response arriving" — the mediated-message reveal. */
 @utility rise {
   animation: duet-rise 360ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* Feed entry. Same curve as `rise`, longer travel, and a per-item delay set by
+   --i so cards arrive in sequence instead of snapping in as one block. */
+@utility settle {
+  animation: duet-settle 420ms cubic-bezier(0.4, 0, 0.2, 1) both;
+  animation-delay: calc(var(--i, 0) * 70ms);
+}
+
+@keyframes duet-settle {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 @keyframes duet-rise {

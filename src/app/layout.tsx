@@ -2,11 +2,11 @@ import type { Metadata, Viewport } from 'next';
 import { Inter, Noto_Sans_Bengali } from 'next/font/google';
 import './globals.css';
 
-// Only the weights the UI actually renders are downloaded — DESIGN.md §3 caps
-// headings at 600/500 and body at 400, so anything else is dead payload.
+// Variable axis: one file covers 400/500/600 and unlocks optical sizing, which
+// is what makes the 12px labels and the 56px hero look like they belong to the
+// same typeface. Static weights ship three files and no optical correction.
 const inter = Inter({
   subsets: ['latin'],
-  weight: ['400', '500', '600'],
   variable: '--font-inter',
   display: 'swap',
 });
