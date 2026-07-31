@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { DuetMark } from '@/components/brand/DuetMark';
-import { Home, MessageCircle, Bell, User } from 'lucide-react';
+import { Home, MessageCircle, Bell } from 'lucide-react';
 import { logoutAction } from '@/app/actions/auth';
 
 export const AppHeader: React.FC = () => {
@@ -13,25 +13,25 @@ export const AppHeader: React.FC = () => {
           <span className="text-lg font-semibold tracking-tight">Duet</span>
         </Link>
         
-        <nav className="flex items-center gap-6">
-          <Link href="/" className="flex items-center gap-2 text-accent focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent rounded-sm">
-            <Home className="h-5 w-5 fill-accent" strokeWidth={1.5} />
+        <nav className="flex items-center gap-1">
+          <Link href="/" aria-current="page" className="flex items-center gap-2 rounded-lg bg-accent/10 px-3 py-2 text-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">
+            <Home className="h-5 w-5" strokeWidth={1.5} />
             <span className="text-sm font-medium">Home</span>
           </Link>
-          <button className="flex items-center gap-2 text-ink-soft hover:text-ink transition-colors duration-300 cursor-not-allowed opacity-60">
+          <button className="flex items-center gap-2 rounded-lg px-3 py-2 text-ink-soft transition-colors cursor-not-allowed opacity-50" disabled>
             <MessageCircle className="h-5 w-5" strokeWidth={1.5} />
             <span className="text-sm font-medium">Messages</span>
           </button>
-          <button className="flex items-center gap-2 text-ink-soft hover:text-ink transition-colors duration-300 cursor-not-allowed opacity-60">
+          <button className="flex items-center gap-2 rounded-lg px-3 py-2 text-ink-soft transition-colors cursor-not-allowed opacity-50" disabled>
             <Bell className="h-5 w-5" strokeWidth={1.5} />
             <span className="text-sm font-medium">Notifications</span>
           </button>
         </nav>
 
         <div className="flex items-center gap-4">
-          <div className="h-8 w-8 rounded-full bg-surface border border-line flex items-center justify-center overflow-hidden">
-            <User className="h-5 w-5 text-ink-soft" strokeWidth={1.5} />
-          </div>
+          <span aria-hidden="true" className="flex h-8 w-8 items-center justify-center rounded-full bg-surface text-[12px] font-medium tracking-[0.02em] text-ink-soft ring-1 ring-line">
+            JO
+          </span>
           <form action={logoutAction}>
             <button type="submit" className="text-sm font-medium text-ink-soft hover:text-ink transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent rounded-sm">
               Log out

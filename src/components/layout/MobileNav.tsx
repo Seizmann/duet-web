@@ -1,27 +1,50 @@
 import React from 'react';
 import Link from 'next/link';
-import { Home, MessageCircle, Bell, LogOut } from 'lucide-react';
+import { Home, MessageCircle, Plus, Bell, LogOut } from 'lucide-react';
 import { logoutAction } from '@/app/actions/auth';
+
+const inactive =
+  'flex h-12 w-12 items-center justify-center rounded-lg text-ink-soft transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent';
 
 export const MobileNav: React.FC = () => {
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-line bg-canvas pb-[env(safe-area-inset-bottom)]">
-      <div className="flex h-[60px] items-center justify-around px-2">
-        <Link href="/" className="flex flex-col items-center justify-center w-16 h-full text-accent relative focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-accent">
-          <Home className="h-6 w-6 fill-accent" strokeWidth={1.5} />
-          <div className="absolute bottom-1 w-1 h-1 rounded-full bg-accent" />
+    // Floating rather than edge-to-edge: the feed scrolls under it, so the bar
+    // reads as a control that sits above the content instead of cropping it.
+    // Solid surface, no backdrop blur — DESIGN.md §9.4 bans glassmorphism.
+    <nav className="fixed inset-x-0 bottom-0 z-50 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] md:hidden">
+      <div className="mx-auto flex max-w-sm items-center justify-between gap-1 rounded-xl bg-surface p-2 shadow-elevate-hover ring-1 ring-line">
+        <Link
+          href="/"
+          aria-current="page"
+          className={`${inactive} bg-accent/10 text-accent`}
+        >
+          <Home className="h-6 w-6" strokeWidth={1.5} />
+          <span className="sr-only">Home</span>
         </Link>
-        <button className="flex flex-col items-center justify-center w-16 h-full text-ink-soft opacity-50 cursor-not-allowed">
+
+        <button className={`${inactive} cursor-not-allowed opacity-40`} disabled>
           <MessageCircle className="h-6 w-6" strokeWidth={1.5} />
+          <span className="sr-only">Messages</span>
         </button>
-        <button className="flex flex-col items-center justify-center w-16 h-full text-ink-soft opacity-50 cursor-not-allowed">
+
+        {/* The one primary action on this screen, per DESIGN.md §5.1. */}
+        <button
+          className="flex h-12 w-12 items-center justify-center rounded-lg bg-accent text-white transition-colors hover:bg-accent-strong focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          disabled
+        >
+          <Plus className="h-6 w-6" strokeWidth={2} />
+          <span className="sr-only">Say something</span>
+        </button>
+
+        <button className={`${inactive} cursor-not-allowed opacity-40`} disabled>
           <Bell className="h-6 w-6" strokeWidth={1.5} />
+          <span className="sr-only">Notifications</span>
         </button>
-        
-        {/* Simple logout trigger for mobile placeholder since no drawer/menu is built yet */}
-        <form action={logoutAction} className="h-full">
-          <button type="submit" className="flex flex-col items-center justify-center w-16 h-full text-ink-soft hover:text-ink transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-accent">
+
+        <form action={logoutAction}>
+          <button type="submit" className={`${inactive} hover:text-ink`}>
             <LogOut className="h-6 w-6" strokeWidth={1.5} />
+            <span className="sr-only">Log out</span>
           </button>
         </form>
       </div>
