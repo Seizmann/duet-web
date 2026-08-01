@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 
 /**
@@ -25,13 +26,16 @@ export const Hero: React.FC = () => (
       </p>
 
       <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-5">
-        <a
-          href="/app"
+        {/* Signup rather than sign-in: this page is only ever served to a visitor
+            without a session, and the headline has just described the problem to
+            someone who does not have an account yet. */}
+        <Link
+          href="/signup"
           className="inline-flex items-center justify-center gap-2 rounded-lg bg-accent px-6 py-3.5 text-sm font-medium text-white transition-colors hover:bg-accent-strong focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
         >
           Start with Duet
           <ArrowRight className="h-4 w-4" aria-hidden="true" />
-        </a>
+        </Link>
         <a
           href="#transparency"
           className="inline-flex items-center justify-center gap-2 rounded-lg px-1 py-3.5 text-sm font-medium text-ink transition-colors hover:text-accent-strong sm:px-0"

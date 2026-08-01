@@ -16,12 +16,14 @@ export const SiteHeader: React.FC = () => (
         <span className="text-lg font-semibold tracking-tight">Duet</span>
       </Link>
 
-      <a
-        href="/app"
+      {/* This bar only renders for signed-out visitors — a valid session gets the
+          feed at `/` instead — so the single action is always "sign in". */}
+      <Link
+        href="/login"
         className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-strong focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
       >
-        Open app
-      </a>
+        Sign in
+      </Link>
     </div>
   </header>
 );

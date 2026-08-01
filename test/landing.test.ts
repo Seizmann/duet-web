@@ -42,9 +42,20 @@ for (const { path, text } of files) {
 // browser state need to opt in; anything else appearing here should be a
 // deliberate change. Server Actions run from a plain `<form action={...}>`, so a
 // component that only submits one stays on the server.
-const clientComponents = files
-  .filter(({ text }) => text.startsWith("'use client'"))
-  .map(({ path }) => path);
+//
+// Matched against the first non-comment, non-blank line rather than the start of
+// the file: a leading licence comment, a BOM, or double quotes would slip past a
+// plain `startsWith`, and a directive this check cannot see is a directive it
+// cannot hold to the list below.
+function hasClientDirective(text: string): boolean {
+  const firstMeaningful = text
+    .replace(/^﻿/, '')
+    .split('\n')
+    .find((line) => line.trim() !== '' && !/^\s*(\/\/|\/\*|\*)/.test(line));
+  return /^\s*['"]use client['"]\s*;?\s*$/.test(firstMeaningful ?? '');
+}
+
+const clientComponents = files.filter(({ text }) => hasClientDirective(text)).map(({ path }) => path);
 assert.deepEqual(
   clientComponents.map((p) => p.slice(SRC.length + 1)).sort(),
   [
@@ -55,6 +66,47 @@ assert.deepEqual(
   ],
   'unexpected client component — keep interactivity at leaf nodes',
 );
+
+// `/app` never existed as a route, so every link to it was a 404. The landing
+// page's sign-in call to action pointed there.
+for (const { path, text } of files) {
+  assert.ok(
+    !/href=["']\/app(["'/])/.test(text),
+    `link to /app in ${path} — that route does not exist`,
+  );
+}
+
+// The "verify it yourself" links pointed at an organisation page rather than the
+// ranking and messaging repositories, which are not published. A verification link
+// that does not reach the code undercuts the claim it is making. Restore these
+// with real repository URLs once the crates are public.
+for (const { path, text } of files) {
+  assert.ok(
+    !/github\.com\/spritex(?!\/)/.test(text),
+    `bare organisation link in ${path} — link to the repository or omit it`,
+  );
+}
+
+// The published ranking weights are the substance of the transparency claim, so
+// they must match the crate rather than drift as copy. Source of truth is
+// `RankingWeights::default()` in duet-feed-algorithm.
+//
+// ponytail: duplicated rather than read, because duet-feed-algorithm is a separate
+// repository and a cross-repo read would break this suite whenever duet-web is
+// checked out alone. A real sync check needs the crate to publish its weights.
+const transparency = readFileSync(join(SRC, 'components/landing/Transparency.tsx'), 'utf8');
+for (const [label, weight] of [
+  ['Stated interest', '0.40'],
+  ['Recency', '0.30'],
+  ['Connection signal', '0.15'],
+  ['Post quality', '0.10'],
+  ['Repeat-creator penalty', '-0.05'],
+]) {
+  assert.ok(
+    new RegExp(`'${weight}'[^\\n]*'${label}'`).test(transparency),
+    `published weight for "${label}" is not ${weight} — it must match RankingWeights::default()`,
+  );
+}
 
 // GEO.md — the structured data must stay in step with the visible FAQ copy, so
 // it has to be derived from it rather than hand-maintained alongside it.
